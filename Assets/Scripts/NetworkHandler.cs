@@ -52,25 +52,25 @@ public class NetworkHandler : NetworkBehaviour
     private void ClientOnClientConnected(ulong clientId)
     {
         PrintMe();
-        if (IsHost)
-        {
-            Debug.Log($"Host, {clientId} has connected to the server");
-        } else
+        if (!IsServer)
         {
             Debug.Log($"I {clientId} have connected to the server");
+        } else
+        {
+            Debug.Log($"Host, {clientId} has connected to the server");
         }
             
     }
 
     private void ClientOnClientDisconnected(ulong clientId)
     {
-        if (IsHost)
+        if (!IsServer)
         {
-            Debug.Log($"Host, {clientId} has disconnected from the server");
+            Debug.Log($"I {clientId} have disconnected from the server");
         }
         else
         {
-            Debug.Log($"I {clientId} have disconnected from the server");
+            Debug.Log($"Host, {clientId} has disconnected from the server");
         }
     }
 
