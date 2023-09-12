@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
 using UnityEngine;
 
 public class NetworkHelper : MonoBehaviour
@@ -12,6 +13,23 @@ public class NetworkHelper : MonoBehaviour
         if (GUILayout.Button("Server")) NetworkManager.Singleton.StartServer();
     }
 
+    private static void RunningControls()
+    {
+        string transportTypeName = NetworkManager.Singleton.NetworkConfig.NetworkTransport.GetType().Name;
+        UnityTransport transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+        string serverPort = "?";
+        if (transport != null)
+        {
+            serverPort = $"{transport.ConnectionData.Address}:{transport.ConnectionData.Port}";
+        }
+        string mode = NetworkManager.Singleton.IsHost ?
+            "Host" : NetworkManager.Singleton.IsServer ? "Server" : "Client";
+
+        if (GUILayout.Button($"Shutdown {mode}")) NetworkManager.Singleton.Shutdown();
+        GUILayout.Label($"Transport: {transportTypeName} [{serverPort}]");
+        GUILayout.Label("Mode: " + mode);
+    }
+
     public static void GUILayoutNetworkControls()
     {
         GUILayout.BeginArea(new Rect(10, 10, 300, 300));
@@ -20,7 +38,7 @@ public class NetworkHelper : MonoBehaviour
             StartButtons();
         } else
         {
-            //RunningControls();
+            RunningControls();
         }
         GUILayout.EndArea();
     }
