@@ -18,13 +18,13 @@ public class Player : NetworkBehaviour
 
     private void Start()
     {
-        //if (IsHost)
-       // {
-        //    prefab = playerWithHat;
-        //} else
-        //{
-          //  prefab = playerDefault;
-        //}
+        /*if (IsHost)
+        {
+            playerPrefab = transform.Find("PlayerDefault").gameObject;
+        } else
+        {
+            playerPrefab = transform.Find("PlayerWithHat").gameObject;
+        }*/
 
         playerCamera = transform.Find("Camera").GetComponent<Camera>();
         playerCamera.enabled = IsOwner;

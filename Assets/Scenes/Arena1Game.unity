@@ -174,6 +174,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerPrefab: {fileID: 5760292283207382237, guid: 3beefe4936f01c44b936a82e13ed3336, type: 3}
+  playerPrefab2: {fileID: -4825375063446169725, guid: a7643107bb1d9df4099e8831b7243123, type: 3}
   arenaCamera: {fileID: 605556763}
 --- !u!4 &320619103
 Transform:
