@@ -41,6 +41,26 @@ public class Player : NetworkBehaviour
         if (IsOwner)
         {
             OwnerHandleInput();
+        } 
+        if (!IsHost)
+        {
+            if (transform.position.x <= -5)
+            {
+                transform.position = new Vector3(-5, transform.position.y, transform.position.z);
+            }
+            else if (transform.position.x >= 5)
+            {
+                transform.position = new Vector3(5, transform.position.y, transform.position.z);
+            }
+
+            if (transform.position.z <= -5)
+            {
+               transform.position = new Vector3(transform.position.x, transform.position.y, -5);
+            }
+            else if (transform.position.z >= 5)
+            {
+               transform.position = new Vector3(transform.position.x, transform.position.y, 5);
+            }
         }
     }
 
@@ -97,27 +117,9 @@ public class Player : NetworkBehaviour
         }
 
         Vector3 moveVect = new Vector3(x_move, 0, z_move);
-        transform.Translate(moveVect * movementSpeed * Time.deltaTime);
-        if (!IsHost)
-        {
-            if (transform.position.x <= -5)
-            {
-                transform.position = new Vector3(-5, transform.position.y, transform.position.z);
-            }
-            else if (transform.position.x >= 5)
-            {
-                transform.position = new Vector3(5, transform.position.y, transform.position.z);
-            }
-
-            if (transform.position.z <= -5)
-            {
-               transform.position = new Vector3(transform.position.x, transform.position.y, -5);
-            }
-            else if (transform.position.z >= 5)
-            {
-               transform.position = new Vector3(transform.position.x, transform.position.y, 5);
-            }
-        }
+        
+       
+transform.Translate(moveVect * movementSpeed * Time.deltaTime);
         //moveVect *= movementSpeed * Time.deltaTime;
 
         return moveVect;
