@@ -8,11 +8,11 @@ public class Arena1Game : NetworkBehaviour
     public Player playerPrefab;
     public Player playerPrefab2;
     public Camera arenaCamera;
+    //public NetworkVariable<Player> playerNetVar = new NetworkVariable<Player>();
 
     //private GameObject playerWithHat;
     //private GameObject playerDefault;
-
-        
+    
     private int positionIndex = 0;
     private Vector3[] startPositions = new Vector3[]
     {
@@ -68,13 +68,10 @@ public class Arena1Game : NetworkBehaviour
     {
         foreach(ulong clientId in NetworkManager.ConnectedClientsIds)
         {
-            Player bob = null;
-            if (IsHost)
+            Player bob = playerPrefab2;
+            if (!IsHost)
             {
                 bob = playerPrefab;
-            } else 
-            {
-                bob = playerPrefab2;
             }
             Player playerSpawn = Instantiate(bob, NextPosition(), Quaternion.identity);
             playerSpawn.GetComponent<NetworkObject>().SpawnWithOwnership(clientId);

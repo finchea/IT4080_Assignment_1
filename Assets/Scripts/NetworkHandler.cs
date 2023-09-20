@@ -52,7 +52,7 @@ public class NetworkHandler : NetworkBehaviour
     private void ClientOnClientConnected(ulong clientId)
     {
         PrintMe();
-        if (!IsServer)
+        if (!IsHost)
         {
             Debug.Log($"I {clientId} have connected to the server");
         } else
@@ -64,7 +64,7 @@ public class NetworkHandler : NetworkBehaviour
 
     private void ClientOnClientDisconnected(ulong clientId)
     {
-        if (!IsServer)
+        if (!IsHost)
         {
             Debug.Log($"I {clientId} have disconnected from the server");
         }

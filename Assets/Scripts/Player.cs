@@ -7,8 +7,10 @@ public class Player : NetworkBehaviour
 {
     public float movementSpeed = 50f;
     public float rotationSpeed = 130f;
+    //public GameObject prefab = transform.Find("PlayerWithHat").gameObject;
     public NetworkVariable<Color> playerColorNetVar = new NetworkVariable<Color>(Color.red);
-    public Player playerPrefab;
+    //public NetworkVariable<Player> playerNetVar = new NetworkVariable<Player>(Player.prefab);
+    //public Arena1Game playerPrefab;
 
     private Camera playerCamera;
     private GameObject playerBody;
@@ -87,26 +89,36 @@ public class Player : NetworkBehaviour
         float x_move = 0.0f;
         float z_move = 0.0f;
 
-        if (!IsHost && Input.GetAxis("Vertical") <= 5)
-        {
             z_move = Input.GetAxis("Vertical");
-        } else
-        {
-            z_move = Input.GetAxis("Vertical");
-        }
-        
 
         if (isShiftKeyDown)
         {
-            if (!IsHost && Input.GetAxis("Horizontal") <= 5)
-            {
-               x_move = Input.GetAxis("Horizontal");
-            }
-                
+            x_move = Input.GetAxis("Horizontal");
         }
 
         Vector3 moveVect = new Vector3(x_move, 0, z_move);
-        moveVect *= movementSpeed * Time.deltaTime;
+        transform.Translate(moveVect * movementSpeed * Time.deltaTime);
+        if (!IsHost)
+        {
+            if (transform.position.x <= -5)
+            {
+                transform.position = new Vector3(-5, transform.position.y, transform.position.z);
+            }
+            else if (transform.position.x >= 5)
+            {
+                transform.position = new Vector3(5, transform.position.y, transform.position.z);
+            }
+
+            if (transform.position.z <= -5)
+            {
+               transform.position = new Vector3(transform.position.x, transform.position.y, -5);
+            }
+            else if (transform.position.z >= 5)
+            {
+               transform.position = new Vector3(transform.position.x, transform.position.y, 5);
+            }
+        }
+        //moveVect *= movementSpeed * Time.deltaTime;
 
         return moveVect;
     }
