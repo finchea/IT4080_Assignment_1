@@ -5,11 +5,12 @@ using Unity.Netcode;
 
 public class Player : NetworkBehaviour
 {
+    //public NetworkVariable<Player> playerNetVar = new NetworkVariable<Player>(Player.prefab);
     public float movementSpeed = 50f;
     public float rotationSpeed = 130f;
     //public GameObject prefab = transform.Find("PlayerWithHat").gameObject;
     public NetworkVariable<Color> playerColorNetVar = new NetworkVariable<Color>(Color.red);
-    //public NetworkVariable<Player> playerNetVar = new NetworkVariable<Player>(Player.prefab);
+    
     //public Arena1Game playerPrefab;
 
     private Camera playerCamera;
@@ -17,6 +18,22 @@ public class Player : NetworkBehaviour
     //private GameObject playerWithHat;
     //private GameObject playerDefault;
     //private GameObject prefab;
+
+    private void NetworkInit()
+    {
+        playerCamera = transform.Find("Camera").GetComponent<Camera>();
+        playerCamera.enabled = IsOwner;
+        playerCamera.GetComponent<AudioListener>().enabled = IsOwner;
+
+        playerBody = transform.Find("PlayerBody").gameObject;
+        ApplyColor();
+        playerColorNetVar.OnValueChanged += OnPlayerColorChanged;
+    }
+
+    private void Awake()
+    {
+        NetworkHelper.Log(this, "Awake");
+    }
 
     private void Start()
     {
@@ -28,12 +45,14 @@ public class Player : NetworkBehaviour
             playerPrefab = transform.Find("PlayerWithHat").gameObject;
         }*/
 
-        playerCamera = transform.Find("Camera").GetComponent<Camera>();
-        playerCamera.enabled = IsOwner;
-        playerCamera.GetComponent<AudioListener>().enabled = IsOwner;
+        NetworkHelper.Log(this, "Start");
+    }
 
-        playerBody = transform.Find("PlayerBody").gameObject;
-        ApplyColor();
+    public override void OnNetworkSpawn()
+    {
+        NetworkHelper.Log(this, "OnNetworkSpawn");
+        NetworkInit();
+        base.OnNetworkSpawn();
     }
 
     private void Update()
@@ -44,22 +63,22 @@ public class Player : NetworkBehaviour
         } 
         if (!IsHost)
         {
-            if (transform.position.x <= -5)
+            if (transform.position.x <= -7)
             {
-                transform.position = new Vector3(-5, transform.position.y, transform.position.z);
+                transform.position = new Vector3(-7, transform.position.y, transform.position.z);
             }
-            else if (transform.position.x >= 5)
+            else if (transform.position.x >= 7)
             {
-                transform.position = new Vector3(5, transform.position.y, transform.position.z);
+                transform.position = new Vector3(7, transform.position.y, transform.position.z);
             }
 
-            if (transform.position.z <= -5)
+            if (transform.position.z <= -7)
             {
-               transform.position = new Vector3(transform.position.x, transform.position.y, -5);
+               transform.position = new Vector3(transform.position.x, transform.position.y, -7);
             }
-            else if (transform.position.z >= 5)
+            else if (transform.position.z >= 7)
             {
-               transform.position = new Vector3(transform.position.x, transform.position.y, 5);
+               transform.position = new Vector3(transform.position.x, transform.position.y, 7);
             }
         }
     }
@@ -78,6 +97,11 @@ public class Player : NetworkBehaviour
     private void ApplyColor()
     {
         playerBody.GetComponent<MeshRenderer>().material.color = playerColorNetVar.Value;
+    }
+
+    public void OnPlayerColorChanged(Color previous, Color current)
+    {
+        ApplyColor();
     }
 
     [ServerRpc]

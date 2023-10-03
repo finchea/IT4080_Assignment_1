@@ -43,7 +43,7 @@ public class LobbyManager : NetworkBehaviour
     public void StartGame()
     {
         NetworkManager.SceneManager.LoadScene(
-            "TestChat",
+            "Arena1Game",
             UnityEngine.SceneManagement.LoadSceneMode.Single);
     }
 }

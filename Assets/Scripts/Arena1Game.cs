@@ -68,10 +68,10 @@ public class Arena1Game : NetworkBehaviour
     {
         foreach(ulong clientId in NetworkManager.ConnectedClientsIds)
         {
-            Player bob = playerPrefab2;
-            if (!IsHost)
+            Player bob = playerPrefab;
+            if (clientId == NetworkManager.LocalClientId)
             {
-                bob = playerPrefab;
+                bob = playerPrefab2;
             }
             Player playerSpawn = Instantiate(bob, NextPosition(), Quaternion.identity);
             playerSpawn.GetComponent<NetworkObject>().SpawnWithOwnership(clientId);
