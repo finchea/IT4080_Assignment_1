@@ -5,19 +5,13 @@ using Unity.Netcode;
 
 public class Player : NetworkBehaviour
 {
-    //public NetworkVariable<Player> playerNetVar = new NetworkVariable<Player>(Player.prefab);
     public float movementSpeed = 50f;
     public float rotationSpeed = 130f;
-    //public GameObject prefab = transform.Find("PlayerWithHat").gameObject;
     public NetworkVariable<Color> playerColorNetVar = new NetworkVariable<Color>(Color.red);
-    
-    //public Arena1Game playerPrefab;
+    public BulletSpawner bulletSpawner;
 
     private Camera playerCamera;
     private GameObject playerBody;
-    //private GameObject playerWithHat;
-    //private GameObject playerDefault;
-    //private GameObject prefab;
 
     private void NetworkInit()
     {
@@ -37,13 +31,6 @@ public class Player : NetworkBehaviour
 
     private void Start()
     {
-        /*if (IsHost)
-        {
-            playerPrefab = transform.Find("PlayerDefault").gameObject;
-        } else
-        {
-            playerPrefab = transform.Find("PlayerWithHat").gameObject;
-        }*/
 
         NetworkHelper.Log(this, "Start");
     }
@@ -60,6 +47,11 @@ public class Player : NetworkBehaviour
         if (IsOwner)
         {
             OwnerHandleInput();
+            /*if (Input.GetButtonDown("Fire1"))
+            {
+                NetworkHelper.Log("Requesting Fire");
+                FireServerRpc();
+            }*/
         } 
         if (!IsHost)
         {
@@ -111,6 +103,12 @@ public class Player : NetworkBehaviour
         transform.Rotate(rotation);
     }
 
+    [ServerRpc]
+    private void FireServerRpc()
+    {
+        NetworkHelper.Log("Fire");
+        bulletSpawner.Fire();
+    }
 
     // Rotate around the y axis when shift is not pressed
     private Vector3 CalcRotation()
