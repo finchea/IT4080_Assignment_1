@@ -8,6 +8,7 @@ public class Player : NetworkBehaviour
     public float movementSpeed = 50f;
     public float rotationSpeed = 130f;
     public NetworkVariable<Color> playerColorNetVar = new NetworkVariable<Color>(Color.red);
+    public NetworkVariable<int> ScoreNetVar = new NetworkVariable<int>(0);
     public BulletSpawner bulletSpawner;
 
     private Camera playerCamera;
@@ -20,8 +21,13 @@ public class Player : NetworkBehaviour
         playerCamera.GetComponent<AudioListener>().enabled = IsOwner;
 
         playerBody = transform.Find("PlayerBody").gameObject;
-        ApplyColor();
+        ApplyPlayerColor();
         playerColorNetVar.OnValueChanged += OnPlayerColorChanged;
+
+        if (IsClient)
+        {
+            ScoreNetVar.OnValueChanged += ClientOnScoreValueChanged;
+        }
     }
 
     private void Awake()
@@ -42,16 +48,57 @@ public class Player : NetworkBehaviour
         base.OnNetworkSpawn();
     }
 
+    private void ClientOnScoreValueChanged(int old, int current)
+    {
+        if (IsOwner)
+        {
+            NetworkHelper.Log(this, $"My score is {ScoreNetVar.Value}");
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (IsServer)
+        {
+            ServerHandleCollision(collision);
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (IsServer)
+        {
+            if (other.CompareTag("power_up"))
+            {
+                other.GetComponent<BasePowerUp>().ServerPickUp(this);
+            }
+        }
+    }
+
+    private void ServerHandleCollision(Collision collision)
+    {
+        if(collision.gameObject.CompareTag("bullet"))
+        {
+            ulong ownerId = collision.gameObject.GetComponent<NetworkObject>().OwnerClientId;
+            NetworkHelper.Log(this, $"Hit by {collision.gameObject.name} " + $"owned by {ownerId}");
+            Player other = NetworkManager.Singleton.ConnectedClients[ownerId].PlayerObject.GetComponent<Player>();
+            other.ScoreNetVar.Value += 1;
+            Destroy(collision.gameObject);
+
+        }
+        
+    }
+
     private void Update()
     {
         if (IsOwner)
         {
             OwnerHandleInput();
-            /*if (Input.GetButtonDown("Fire1"))
+            if (Input.GetButtonDown("Fire1"))
             {
                 NetworkHelper.Log("Requesting Fire");
-                FireServerRpc();
-            }*/
+                bulletSpawner.FireServerRpc();
+            }
         } 
         if (!IsHost)
         {
@@ -86,14 +133,14 @@ public class Player : NetworkBehaviour
         }
     }
 
-    private void ApplyColor()
+    private void ApplyPlayerColor()
     {
         playerBody.GetComponent<MeshRenderer>().material.color = playerColorNetVar.Value;
     }
 
     public void OnPlayerColorChanged(Color previous, Color current)
     {
-        ApplyColor();
+        ApplyPlayerColor();
     }
 
     [ServerRpc]
@@ -101,13 +148,6 @@ public class Player : NetworkBehaviour
     {
         transform.Translate(movement);
         transform.Rotate(rotation);
-    }
-
-    [ServerRpc]
-    private void FireServerRpc()
-    {
-        NetworkHelper.Log("Fire");
-        bulletSpawner.Fire();
     }
 
     // Rotate around the y axis when shift is not pressed
